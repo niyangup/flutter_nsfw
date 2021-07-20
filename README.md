@@ -4,7 +4,7 @@ open_nsfw_android 的flutter插件 暂时只支持安卓端
 
 
 ## 如何使用
-1.初始化`initNsfw()`
+1.初始化`initNsfw()`,必须要在使用之前初始化完成
 
 2.开始使用`getNSFWScore`
 
