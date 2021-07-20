@@ -13,17 +13,13 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.github.devzwy.nsfw.NSFWHelper
 import java.io.File
 import java.nio.file.FileSystem
+import java.util.HashMap
 
 /** FlutterNsfwPlugin */
 class FlutterNsfwPlugin : FlutterPlugin, MethodCallHandler {
     private var mContext: Context? = null
 
-    /// The MethodChannel that will the communication between Flutter and native Android
-    ///
-    /// This local reference serves to register the plugin with the Flutter Engine and unregister it
-    /// when the Flutter Engine is detached from the Activity
     private lateinit var channel: MethodChannel
-
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_nsfw")
@@ -35,27 +31,43 @@ class FlutterNsfwPlugin : FlutterPlugin, MethodCallHandler {
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
         Log.d("TAG", "onMethodCall: ${call.method}")
-        if (call.method == "getPlatformVersion") {
-            result.success("Android ${android.os.Build.VERSION.RELEASE}")
-        } else if (call.method == "initNsfw") {
-            handleInitNsfw(call, result)
-        } else if (call.method == "getNSFWScore") {
-            handleGetNSFWScore(call, result)
-        } else {
-            result.notImplemented()
+        when (call.method) {
+            "getPlatformVersion" -> {
+                result.success("Android ${android.os.Build.VERSION.RELEASE}")
+            }
+            "initNsfw" -> {
+                handleInitNsfw(call, result)
+            }
+            "getNSFWScore" -> {
+                handleGetNSFWScore(call, result)
+            }
+            else -> {
+                result.notImplemented()
+            }
         }
     }
 
     private fun handleGetNSFWScore(call: MethodCall, result: MethodChannel.Result) {
+        var resultMap: HashMap<String, String>? = null
         val filePath: String? = call.argument<String>("filePath")
-        filePath?.let {
+        if (filePath != null) {
             val file = File(filePath)
             NSFWHelper.getNSFWScore(file) {
                 val data = "nsfw:${it.nsfwScore}\nsfw:${it.sfwScore}\n扫描耗时：${it.timeConsumingToScanData} ms"
                 Log.d("TAG", "handleNSFW: $data")
+                resultMap = HashMap()
+                resultMap?.apply {
+                    put("nsfw", "${it.nsfwScore}")
+                    put("sfw", "${it.sfwScore}")
+                    put("timeConsumingToLoadData", "${it.timeConsumingToScanData}")
+                    put("timeConsumingToScanData", "${it.timeConsumingToScanData}")
+                }
+                result.success(resultMap)
             }
+        } else {
+            result.success(null)
         }
-        result.success("")
+
     }
 
     /**

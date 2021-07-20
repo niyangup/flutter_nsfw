@@ -32,9 +32,10 @@ class FlutterNsfw {
 
   ///初始化
   /// [filePath] 图片文件url
-  static Future<void> getNSFWScore(String filePath) async {
-    await _channel.invokeMethod('getNSFWScore', {
+  static Future<Map<Object?, Object?>> getNSFWScore(String filePath) async {
+    final result = await _channel.invokeMethod('getNSFWScore', {
       "filePath": filePath,
     });
+    return result;
   }
 }
