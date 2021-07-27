@@ -15,6 +15,8 @@ flutter_nsfw:
 
 2.开始使用`getNSFWScore`
 
+3.强烈建议自己跑一下example
+
 ## 识别结果
 ```dart
 NSFWScoreBean.sfw   ... 非涉黄数值 数值越大约安全
